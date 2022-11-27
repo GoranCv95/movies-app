@@ -4,6 +4,7 @@ import { Movie, MovieCredits, MovieDto, MovieImages, MovieVideoDto } from '../mo
 import { switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { TvDto } from '../models/tv';
+import { GenresDto } from '../models/genre';
 
 @Injectable({
   providedIn: 'root'
@@ -41,7 +42,19 @@ export class MoviesService {
     return this.http.get<MovieCredits>(`${this.baseUrl}/movie/${id}/credits?api_key=${this.apiKey}`);
   }
 
+  getMoviesGenres() {
+    return this.http.get<GenresDto>(`${this.baseUrl}/genre/movie/list?api_key=${this.apiKey}`)
+    .pipe(switchMap(res => {
+      return of(res.genres);
+    }));
+  }
 
+  getMoviesByGenre(genreId: string, pageNumber: number) {
+    return this.http.get<MovieDto>(`${this.baseUrl}/discover/movie?with_genres=${genreId}&page=${pageNumber}&api_key=${this.apiKey}`)
+    .pipe(switchMap(res => {
+      return of(res.results);
+    }));
+  }
 
   searchMovies(page: number) {
     return this.http.get<MovieDto>(`${this.baseUrl}/movie/popular?page=${page}&api_key=${this.apiKey}`)
